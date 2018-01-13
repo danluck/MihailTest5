@@ -16,6 +16,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -33,6 +34,9 @@ public class MainActivity extends AppCompatActivity {
 
         editText_devicesList = findViewById(R.id.editText_devicesList);
         devicesList = new ArrayList<BluetoothDevice>();
+
+        progressBar2 = findViewById(R.id.progressBar2);
+        progressBar2.setVisibility(View.INVISIBLE);
     }
 
 
@@ -186,19 +190,22 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d(TAG, "scanLeDevice: start");
         if (!isLeScanEnabled) {
+            devicesList.clear();
+            editText_devicesList.setText("");
+
             mBluetoothAdapter.startLeScan(mLeScanCallback);
             isLeScanEnabled = true;
+            progressBar2.setVisibility(View.VISIBLE);
         }
         else {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             isLeScanEnabled = false;
+            progressBar2.setVisibility(View.INVISIBLE);
         }
     }
 
-    // Device scan callback.
     ArrayList<BluetoothDevice> devicesList;
-
-
+    // Device scan callback.
     private BluetoothAdapter.LeScanCallback mLeScanCallback =
             new BluetoothAdapter.LeScanCallback() {
                 @Override
@@ -210,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, "run: mLeScanCallback");
 
                             String deviceNameAndAddress = "" + device.getName() +
-                                    " addr: " + device.getAddress() + "\r\n";
+                                    " " + device.getAddress() + "\r\n";
                             Log.d(TAG, "run: Find" + deviceNameAndAddress);
 
                             if (!devicesList.contains(device)) {
@@ -230,6 +237,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
 
     private EditText editText_devicesList;
+    private ProgressBar progressBar2;
 
     private BluetoothAdapter mBluetoothAdapter;
 
