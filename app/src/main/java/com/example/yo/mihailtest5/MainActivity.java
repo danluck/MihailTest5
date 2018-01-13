@@ -2,6 +2,7 @@ package com.example.yo.mihailtest5;
 
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -14,7 +15,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,6 +30,9 @@ public class MainActivity extends AppCompatActivity {
 
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         CheckDeviceOpportunities();
+
+        editText_devicesList = findViewById(R.id.editText_devicesList);
+        devicesList = new ArrayList<BluetoothDevice>();
     }
 
 
@@ -173,9 +181,46 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private boolean isLeScanEnabled = false;
     private void scanLeDevice() {
+
         Log.d(TAG, "scanLeDevice: start");
+        if (!isLeScanEnabled) {
+            mBluetoothAdapter.startLeScan(mLeScanCallback);
+            isLeScanEnabled = true;
+        }
+        else {
+            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+            isLeScanEnabled = false;
+        }
     }
+
+    // Device scan callback.
+    ArrayList<BluetoothDevice> devicesList;
+
+
+    private BluetoothAdapter.LeScanCallback mLeScanCallback =
+            new BluetoothAdapter.LeScanCallback() {
+                @Override
+                public void onLeScan(final BluetoothDevice device, int rssi,
+                                     byte[] scanRecord) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Log.d(TAG, "run: mLeScanCallback");
+
+                            String deviceNameAndAddress = "" + device.getName() +
+                                    " addr: " + device.getAddress() + "\r\n";
+                            Log.d(TAG, "run: Find" + deviceNameAndAddress);
+
+                            if (!devicesList.contains(device)) {
+                                editText_devicesList.append(deviceNameAndAddress);
+                                devicesList.add(device);
+                            }
+                        }
+                    });
+                }
+            };
 
     private static boolean mIsNeedToStartScan = false;
     private static boolean mIsRequestForBluetoothTurnOn = false;
@@ -183,6 +228,8 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "##### MainActivity";
     private static final int REQUEST_BLE_MODULE_TURN_ON = 0;
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
+
+    private EditText editText_devicesList;
 
     private BluetoothAdapter mBluetoothAdapter;
 
