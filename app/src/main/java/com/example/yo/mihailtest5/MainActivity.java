@@ -15,7 +15,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -33,10 +35,28 @@ public class MainActivity extends AppCompatActivity {
         CheckDeviceOpportunities();
 
         editText_devicesList = findViewById(R.id.editText_devicesList);
-        devicesList = new ArrayList<BluetoothDevice>();
+        mDevicesArrayList = new ArrayList<BluetoothDevice>();
 
         progressBar2 = findViewById(R.id.progressBar2);
         progressBar2.setVisibility(View.INVISIBLE);
+
+
+        //myStringArray = new ArrayList<String>();
+        //myStringArray.add("a");
+        //myStringArray.add("bs");
+
+        //
+
+        //stringArrayAdapter = new ArrayAdapter<String>(this,
+        //        android.R.layout.simple_list_item_1, myStringArray);
+
+        mListView = findViewById(R.id.listView);
+
+        mBluetoothDeviceAdapter = new ArrayAdapter<BluetoothDevice>(this,
+                android.R.layout.simple_list_item_1, mDevicesArrayList);
+        mListView.setAdapter(mBluetoothDeviceAdapter);
+
+        //mListView.setAdapter(stringArrayAdapter);
     }
 
 
@@ -56,6 +76,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void OnClickLeScan(View view) {
+
+        mListView.setAdapter(stringArrayAdapter);
+
         Log.d(TAG, "OnClickLeScan: Start scan");
 
         // Check if BLE module ON:
@@ -190,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d(TAG, "scanLeDevice: start");
         if (!isLeScanEnabled) {
-            devicesList.clear();
+            mDevicesArrayList.clear();
             editText_devicesList.setText("");
 
             mBluetoothAdapter.startLeScan(mLeScanCallback);
@@ -204,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    ArrayList<BluetoothDevice> devicesList;
+    ArrayList<BluetoothDevice> mDevicesArrayList;
     // Device scan callback.
     private BluetoothAdapter.LeScanCallback mLeScanCallback =
             new BluetoothAdapter.LeScanCallback() {
@@ -220,9 +243,11 @@ public class MainActivity extends AppCompatActivity {
                                     " " + device.getAddress() + "\r\n";
                             Log.d(TAG, "run: Find" + deviceNameAndAddress);
 
-                            if (!devicesList.contains(device)) {
+                            if (!mDevicesArrayList.contains(device)) {
                                 editText_devicesList.append(deviceNameAndAddress);
-                                devicesList.add(device);
+                                mDevicesArrayList.add(device);
+
+                                mListView.setAdapter(mBluetoothDeviceAdapter);
                             }
                         }
                     });
@@ -238,6 +263,12 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText editText_devicesList;
     private ProgressBar progressBar2;
+
+    private ListView mListView;
+
+    private List<String> myStringArray;
+    ArrayAdapter<String> stringArrayAdapter;
+    ArrayAdapter<BluetoothDevice> mBluetoothDeviceAdapter;
 
     private BluetoothAdapter mBluetoothAdapter;
 
