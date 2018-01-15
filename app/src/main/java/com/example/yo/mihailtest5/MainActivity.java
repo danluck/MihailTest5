@@ -34,29 +34,14 @@ public class MainActivity extends AppCompatActivity {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         CheckDeviceOpportunities();
 
-        editText_devicesList = findViewById(R.id.editText_devicesList);
-        mDevicesArrayList = new ArrayList<BluetoothDevice>();
-
         progressBar2 = findViewById(R.id.progressBar2);
         progressBar2.setVisibility(View.INVISIBLE);
 
-
-        //myStringArray = new ArrayList<String>();
-        //myStringArray.add("a");
-        //myStringArray.add("bs");
-
-        //
-
-        //stringArrayAdapter = new ArrayAdapter<String>(this,
-        //        android.R.layout.simple_list_item_1, myStringArray);
-
-        mListView = findViewById(R.id.listView);
-
+        mDevicesArrayList = new ArrayList<BluetoothDevice>();
         mBluetoothDeviceAdapter = new ArrayAdapter<BluetoothDevice>(this,
                 android.R.layout.simple_list_item_1, mDevicesArrayList);
+        mListView = findViewById(R.id.listView);
         mListView.setAdapter(mBluetoothDeviceAdapter);
-
-        //mListView.setAdapter(stringArrayAdapter);
     }
 
 
@@ -76,9 +61,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void OnClickLeScan(View view) {
-
-        mListView.setAdapter(stringArrayAdapter);
-
         Log.d(TAG, "OnClickLeScan: Start scan");
 
         // Check if BLE module ON:
@@ -214,7 +196,6 @@ public class MainActivity extends AppCompatActivity {
         Log.d(TAG, "scanLeDevice: start");
         if (!isLeScanEnabled) {
             mDevicesArrayList.clear();
-            editText_devicesList.setText("");
 
             mBluetoothAdapter.startLeScan(mLeScanCallback);
             isLeScanEnabled = true;
@@ -244,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.d(TAG, "run: Find" + deviceNameAndAddress);
 
                             if (!mDevicesArrayList.contains(device)) {
-                                editText_devicesList.append(deviceNameAndAddress);
+                                //editText_devicesList.append(deviceNameAndAddress);
                                 mDevicesArrayList.add(device);
 
                                 mListView.setAdapter(mBluetoothDeviceAdapter);
@@ -261,13 +242,9 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_BLE_MODULE_TURN_ON = 0;
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
 
-    private EditText editText_devicesList;
     private ProgressBar progressBar2;
 
     private ListView mListView;
-
-    private List<String> myStringArray;
-    ArrayAdapter<String> stringArrayAdapter;
     ArrayAdapter<BluetoothDevice> mBluetoothDeviceAdapter;
 
     private BluetoothAdapter mBluetoothAdapter;
