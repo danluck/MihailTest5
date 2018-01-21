@@ -17,12 +17,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,31 +34,17 @@ public class MainActivity extends AppCompatActivity {
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         CheckDeviceOpportunities();
 
-        progressBar2 = findViewById(R.id.progressBar2);
-        progressBar2.setVisibility(View.INVISIBLE);
+        progressBarSpinner = findViewById(R.id.progressBarSpinner);
+        progressBarSpinner.setVisibility(View.INVISIBLE);
 
-        mDevicesArrayList = new ArrayList<BluetoothDevice>();
-        mBluetoothDeviceAdapter = new ArrayAdapter<BluetoothDevice>(this,
-                android.R.layout.simple_list_item_1, mDevicesArrayList);
-        mListView = findViewById(R.id.listView);
-        mListView.setAdapter(mBluetoothDeviceAdapter);
+        mBluetoothDevicesArrayList = new ArrayList<BluetoothDevice>();
+        mBluetoothDevicesArrayAdapter = new BluetoothDevicesArrayAdapter(this, mBluetoothDevicesArrayList);
+
+        listViewBluetoothDevices = findViewById(R.id.listViewBluetoothDevices);
+        listViewBluetoothDevices.setAdapter(mBluetoothDevicesArrayAdapter);
     }
-
-
-    private void CheckDeviceOpportunities() {
-        if (mBluetoothAdapter == null) {
-            Log.d(TAG, "Bluetooth is not supported on this device");
-            Toast.makeText(this,"", Toast.LENGTH_SHORT).show();
-            finish();
-        }
-
-        // Use this check to determine whether BLE is supported on the device. Then
-        // you can selectively disable BLE-related features.
-        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
-            Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_LONG).show();
-            finish();
-        }
-    }
+    private BluetoothDevicesArrayAdapter mBluetoothDevicesArrayAdapter;
+    //private ArrayAdapter<String> baseArrayAdapter;
 
     public void OnClickLeScan(View view) {
         Log.d(TAG, "OnClickLeScan: Start scan");
@@ -195,20 +181,22 @@ public class MainActivity extends AppCompatActivity {
 
         Log.d(TAG, "scanLeDevice: start");
         if (!isLeScanEnabled) {
-            mDevicesArrayList.clear();
+            //mBluetoothDevicesArrayList.clear();
+            mBluetoothDevicesArrayAdapter.clear();
 
             mBluetoothAdapter.startLeScan(mLeScanCallback);
             isLeScanEnabled = true;
-            progressBar2.setVisibility(View.VISIBLE);
+            progressBarSpinner.setVisibility(View.VISIBLE);
         }
         else {
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
             isLeScanEnabled = false;
-            progressBar2.setVisibility(View.INVISIBLE);
+            progressBarSpinner.setVisibility(View.INVISIBLE);
         }
     }
 
-    ArrayList<BluetoothDevice> mDevicesArrayList;
+    ArrayList<BluetoothDevice> mBluetoothDevicesArrayList;
+
     // Device scan callback.
     private BluetoothAdapter.LeScanCallback mLeScanCallback =
             new BluetoothAdapter.LeScanCallback() {
@@ -224,16 +212,28 @@ public class MainActivity extends AppCompatActivity {
                                     " " + device.getAddress() + "\r\n";
                             Log.d(TAG, "run: Find" + deviceNameAndAddress);
 
-                            if (!mDevicesArrayList.contains(device)) {
-                                //editText_devicesList.append(deviceNameAndAddress);
-                                mDevicesArrayList.add(device);
-
-                                mListView.setAdapter(mBluetoothDeviceAdapter);
+                            if (!mBluetoothDevicesArrayList.contains(device)) {
+                                mBluetoothDevicesArrayAdapter.add(device);
                             }
                         }
                     });
                 }
             };
+
+    private void CheckDeviceOpportunities() {
+        if (mBluetoothAdapter == null) {
+            Log.d(TAG, "Bluetooth is not supported on this device");
+            Toast.makeText(this,"", Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
+        // Use this check to determine whether BLE is supported on the device. Then
+        // you can selectively disable BLE-related features.
+        if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
+            Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_LONG).show();
+            finish();
+        }
+    }
 
     private static boolean mIsNeedToStartScan = false;
     private static boolean mIsRequestForBluetoothTurnOn = false;
@@ -242,9 +242,11 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_BLE_MODULE_TURN_ON = 0;
     private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
 
-    private ProgressBar progressBar2;
+    private ProgressBar progressBarSpinner;
 
-    private ListView mListView;
+    private ListAdapter bluetoothDevicesArrayAdapter;
+    private ListView listViewBluetoothDevices;
+
     ArrayAdapter<BluetoothDevice> mBluetoothDeviceAdapter;
 
     private BluetoothAdapter mBluetoothAdapter;
